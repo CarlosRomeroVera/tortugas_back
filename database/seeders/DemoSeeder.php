@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Actions\Bookings\BookingData;
 use App\Actions\Bookings\CreateBooking;
+use App\Actions\Crew\AssignCrew;
 use App\Actions\Maintenance\ScheduleMaintenance;
 use App\Actions\Payments\RecordPayment;
 use App\Enums\AssetKind;
@@ -14,6 +15,7 @@ use App\Enums\PaymentMethod;
 use App\Enums\SalesChannel;
 use App\Enums\ServiceCategory;
 use App\Enums\StaffRole;
+use App\Exceptions\DomainException;
 use App\Models\Asset;
 use App\Models\Departure;
 use App\Models\Location;
@@ -152,7 +154,36 @@ class DemoSeeder extends Seeder
         Artisan::call('departures:generate', ['--days' => 7, '--from' => now(LocalTime::zone())->addDay()->toDateString()]);
 
         $this->bookings();
+        $this->crew();
         $this->maintenance();
+    }
+
+    /** Tripulación fija por unidad. Rubén (capitán) y Pedro (chofer) tienen usuario para la app. */
+    private function crew(): void
+    {
+        $byAsset = [
+            'Carey I' => ['Rubén Canul', 'Karla Ek'],
+            'Carey II' => ['Jorge May'],
+            'Tortuga' => ['Luis Pech'],
+            'Laúd' => ['Luis Pech'],
+            'El Cielo' => ['Luis Pech'],
+            'Parasail 1' => ['Ana Chi'],
+            'Parasail 2' => ['Ana Chi'],
+            'Jeep 2' => ['Pedro Uc', 'Marco Tun'],
+            'Jeep 3' => ['Iván Dzul'],
+        ];
+        $assign = app(AssignCrew::class);
+        $staff = Staff::query()->get()->keyBy('name');
+
+        Departure::query()->with('asset')->get()->each(function (Departure $d) use ($byAsset, $assign, $staff) {
+            foreach ($byAsset[$d->asset->name] ?? [] as $name) {
+                try {
+                    $assign->handle($d, $staff[$name]);
+                } catch (DomainException) {
+                    // Ya va en otra salida a esa hora: queda sin asignar para que coordinación lo vea.
+                }
+            }
+        });
     }
 
     private function service(string $slug, array $attrs, array $stages): Service

@@ -3,13 +3,16 @@
 namespace App\Filament\Widgets;
 
 use App\Enums\AssetStatus;
+use App\Enums\FaultSeverity;
+use App\Enums\FaultStatus;
 use App\Models\Asset;
 use App\Models\Booking;
+use App\Models\FaultReport;
 use App\Models\Staff;
 use App\Support\LocalTime;
 use Filament\Widgets\Widget;
 
-/** Lo que coordinación debe atender: cruceros en riesgo, licencias y servicios preventivos. */
+/** Lo que coordinación debe atender: cruceros en riesgo, fallas graves, licencias y servicios preventivos. */
 class OpsAlerts extends Widget
 {
     /** Minutos mínimos entre el regreso del tour y el all aboard. */
@@ -36,6 +39,14 @@ class OpsAlerts extends Widget
                 'title' => "Crucero {$b->cruise_ship}: all aboard {$b->all_aboard_at->tz($tz)->format('d/m H:i')}",
                 'body' => "{$b->customer->name} ({$b->pax} pax) regresa de {$b->departure->service->name} a las {$b->departure->ends_at->tz($tz)->format('H:i')}. Margen: "
                     .$b->departure->ends_at->diffInMinutes($b->all_aboard_at, false).' min.',
+            ]));
+
+        FaultReport::query()->where('status', FaultStatus::Open)->where('severity', FaultSeverity::Blocking)
+            ->with(['asset', 'reporter'])->latest('reported_at')->get()
+            ->each(fn (FaultReport $f) => $alerts->push([
+                'level' => 'danger',
+                'title' => "{$f->asset->name}: falla que impide operar",
+                'body' => "{$f->description} · Reportó ".($f->reporter?->name ?? 'la app').' a las '.$f->reported_at->tz($tz)->format('d/m H:i').'.',
             ]));
 
         Asset::query()->where('status', AssetStatus::Active)->whereNotNull('service_interval')->get()

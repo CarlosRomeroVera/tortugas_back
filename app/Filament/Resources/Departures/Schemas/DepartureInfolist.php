@@ -19,6 +19,12 @@ class DepartureInfolist
                 TextEntry::make('starts_at')->label('Sale')->dateTime('D d M Y · H:i'),
                 TextEntry::make('ends_at')->label('Regresa')->dateTime('H:i'),
                 TextEntry::make('currentStage.name')->label('Etapa actual')->placeholder('Sin iniciar'),
+                TextEntry::make('departed_at')->label('Inició')->dateTime('H:i')->placeholder('—'),
+                TextEntry::make('returned_at')->label('Terminó')->dateTime('H:i')->placeholder('—'),
+                TextEntry::make('captain')->label('Tripulación')
+                    ->state(fn (Departure $r) => $r->crew->pluck('name')->join(', ') ?: null)
+                    ->placeholder('Sin asignar')
+                    ->color(fn (Departure $r) => $r->crew->isEmpty() ? 'danger' : null),
             ]),
             Section::make('Ocupación')->columnSpan(1)->components([
                 TextEntry::make('seats')->label('Lugares')

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\BookingStatus;
 use App\Enums\DepartureStatus;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -58,6 +59,22 @@ class Departure extends Model
     public function crew(): BelongsToMany
     {
         return $this->belongsToMany(Staff::class, 'departure_crew')->withPivot('role');
+    }
+
+    public function fieldEvents(): HasMany
+    {
+        return $this->hasMany(FieldEvent::class);
+    }
+
+    public function faultReports(): HasMany
+    {
+        return $this->hasMany(FaultReport::class);
+    }
+
+    /** Salidas donde el usuario va como tripulación (por su ficha de personal). */
+    public function scopeCrewedBy(Builder $query, User $user): void
+    {
+        $query->whereHas('crew', fn (Builder $q) => $q->where('staff.user_id', $user->getKey()));
     }
 
     /** Personas que ya ocupan lugar (reservas pendientes, confirmadas o completadas). */

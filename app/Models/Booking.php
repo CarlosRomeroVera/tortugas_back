@@ -28,6 +28,7 @@ class Booking extends Model
             'currency' => Currency::class,
             'all_aboard_at' => 'datetime',
             'cancelled_at' => 'datetime',
+            'checked_in_at' => 'datetime',
         ];
     }
 

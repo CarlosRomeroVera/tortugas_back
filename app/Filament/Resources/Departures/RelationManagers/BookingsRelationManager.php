@@ -32,6 +32,7 @@ class BookingsRelationManager extends RelationManager
                 TextColumn::make('channel')->label('Canal')->badge(),
                 TextColumn::make('pickupLocation.name')->label('Recogida')->placeholder('Llega por su cuenta'),
                 TextColumn::make('status')->label('Estado')->badge(),
+                TextColumn::make('checked_in_at')->label('Abordó')->dateTime('H:i')->placeholder('—'),
                 TextColumn::make('balance')->label('Saldo')
                     ->state(fn (Booking $r) => $r->balanceCents())
                     ->money(fn (Booking $r) => $r->currency->value, divideBy: 100)

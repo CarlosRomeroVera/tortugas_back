@@ -6,6 +6,7 @@ use App\Models\Allocation;
 use App\Models\Asset;
 use App\Models\Booking;
 use App\Models\Departure;
+use App\Models\FaultReport;
 use App\Models\MaintenanceOrder;
 use App\Models\Payment;
 use App\Models\User;
@@ -32,6 +33,7 @@ class AppServiceProvider extends ServiceProvider
             'maintenance_order' => MaintenanceOrder::class,
             'booking' => Booking::class,
             'payment' => Payment::class,
+            'fault_report' => FaultReport::class,
         ]);
 
         // En desarrollo, falla ante atributos inexistentes o descartados en silencio.

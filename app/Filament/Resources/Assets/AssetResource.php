@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Assets;
 
 use App\Enums\AssetKind;
 use App\Filament\Resources\Assets\RelationManagers\AllocationsRelationManager;
+use App\Filament\Resources\Assets\RelationManagers\FaultReportsRelationManager;
 use App\Filament\Resources\Assets\RelationManagers\MaintenanceOrdersRelationManager;
 use App\Filament\Resources\Assets\Schemas\AssetForm;
 use App\Filament\Resources\Assets\Schemas\AssetInfolist;
@@ -55,6 +56,7 @@ abstract class AssetResource extends Resource
         return [
             AllocationsRelationManager::class,
             MaintenanceOrdersRelationManager::class,
+            FaultReportsRelationManager::class,
         ];
     }
 

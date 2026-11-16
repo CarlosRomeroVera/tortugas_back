@@ -99,6 +99,17 @@ class Asset extends Model
         return $this->hasMany(MaintenanceOrder::class);
     }
 
+    public function faultReports(): HasMany
+    {
+        return $this->hasMany(FaultReport::class);
+    }
+
+    /** Campo donde se guarda la lectura: horas de motor o kilómetros. */
+    public function readingField(): string
+    {
+        return $this->kind === AssetKind::Boat ? 'engine_hours' : 'odometer_km';
+    }
+
     public function scopeBoats(Builder $query): void
     {
         $query->where('kind', AssetKind::Boat);

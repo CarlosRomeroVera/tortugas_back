@@ -6,6 +6,7 @@ use App\Filament\Resources\Departures\Pages\CreateDeparture;
 use App\Filament\Resources\Departures\Pages\ListDepartures;
 use App\Filament\Resources\Departures\Pages\ViewDeparture;
 use App\Filament\Resources\Departures\RelationManagers\BookingsRelationManager;
+use App\Filament\Resources\Departures\RelationManagers\CrewRelationManager;
 use App\Filament\Resources\Departures\Schemas\DepartureForm;
 use App\Filament\Resources\Departures\Schemas\DepartureInfolist;
 use App\Filament\Resources\Departures\Tables\DeparturesTable;
@@ -54,7 +55,7 @@ class DepartureResource extends Resource
 
     public static function getRelations(): array
     {
-        return [BookingsRelationManager::class];
+        return [BookingsRelationManager::class, CrewRelationManager::class];
     }
 
     public static function getPages(): array
