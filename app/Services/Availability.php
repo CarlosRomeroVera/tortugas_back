@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Enums\AssetStatus;
 use App\Enums\DepartureStatus;
 use App\Models\Allocation;
 use App\Models\Asset;
@@ -65,9 +64,7 @@ final class Availability
         $dayEnd = LocalTime::toUtc($date, $hours['end']);
         $length = $service->duration_minutes + $service->buffer_minutes;
 
-        $assets = Asset::query()
-            ->where('kind', $service->asset_kind)
-            ->where('status', AssetStatus::Active)
+        $assets = $service->eligibleAssets()
             ->where('capacity', '>=', $pax)
             ->orderBy('capacity')
             ->get();

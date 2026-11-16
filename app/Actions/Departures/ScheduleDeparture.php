@@ -24,6 +24,9 @@ final class ScheduleDeparture
         if ($asset->kind !== $service->asset_kind) {
             throw new InvalidBooking("{$service->name} necesita un recurso de tipo {$service->asset_kind->getLabel()}.");
         }
+        if (! $service->allowsAsset($asset)) {
+            throw new InvalidBooking("{$asset->name} no está habilitada para {$service->name}.");
+        }
 
         $start = CarbonImmutable::instance($startsAt)->utc();
         $end = $start->addMinutes($service->duration_minutes);

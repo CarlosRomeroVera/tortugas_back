@@ -21,9 +21,9 @@ class DepartureForm
                     Select::make('service_id')->label('Servicio')->required()->live()
                         ->relationship('service', 'name', fn ($query) => $query->where('is_active', true)),
                     Select::make('asset_id')->label('Unidad')->required()
-                        ->relationship('asset', 'name', fn ($query, Get $get) => $query
-                            ->where('kind', Service::find($get('service_id'))?->asset_kind)
-                            ->where('status', 'active'))
+                        ->relationship('asset', 'name', fn ($query, Get $get) => ($service = Service::find($get('service_id')))
+                            ? $query->whereIn('id', $service->eligibleAssets()->select('id'))
+                            : $query->whereRaw('1 = 0'))
                         ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->name} · {$record->capacity} pax")
                         ->disabled(fn (Get $get) => ! $get('service_id')),
                     DateTimePicker::make('starts_at')->label('Sale')->seconds(false)->required()->minutesStep(5),

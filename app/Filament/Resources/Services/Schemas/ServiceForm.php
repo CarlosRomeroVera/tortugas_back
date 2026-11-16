@@ -37,6 +37,9 @@ class ServiceForm
                 TextInput::make('duration_minutes')->label('Duración')->required()->integer()->minValue(10)->suffix('min'),
                 TextInput::make('buffer_minutes')->label('Margen entre salidas')->integer()->minValue(0)->default(0)->suffix('min')
                     ->helperText('Tiempo para limpiar, cargar combustible o regresar.'),
+                Select::make('assets')->label('Unidades habilitadas')->multiple()->preload()->columnSpanFull()
+                    ->relationship('assets', 'name', fn ($query, Get $get) => $query->where('kind', $get('asset_kind')))
+                    ->helperText('Vacío = cualquier unidad activa de ese tipo. Para privados, define aquí qué lanchas o vehículos se pueden vender.'),
                 TextInput::make('default_capacity')->label('Cupo por salida')->integer()->minValue(1)
                     ->helperText('Vacío = capacidad de la unidad.')->visible(fn (Get $get) => (bool) $get('is_shared')),
             ]),

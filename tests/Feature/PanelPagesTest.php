@@ -51,7 +51,7 @@ it('una embarcación no aparece entre los vehículos', function () {
 });
 
 it('crea una reserva desde el asistente con los horarios disponibles', function () {
-    $departure = Departure::whereHas('service', fn ($q) => $q->where('slug', 'snorkel-3-arrecifes'))->orderBy('starts_at')->first();
+    $departure = Departure::whereHas('service', fn ($q) => $q->where('slug', 'catamaran-snorkel-to-el-cielo'))->orderBy('starts_at')->first();
 
     Livewire::test(CreateBooking::class)
         ->fillForm([
@@ -74,7 +74,7 @@ it('crea una reserva desde el asistente con los horarios disponibles', function 
 });
 
 it('reserva un privado eligiendo solo la hora', function () {
-    $service = Service::where('slug', 'embarcacion-privada')->first();
+    $service = Service::where('slug', 'el-cielo-by-private-boat')->first();
     $date = CarbonImmutable::now('America/Cancun')->addDays(5)->toDateString();
 
     Livewire::test(CreateBooking::class)

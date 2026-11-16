@@ -3,7 +3,6 @@
 namespace App\Actions\Bookings;
 
 use App\Actions\Departures\ScheduleDeparture;
-use App\Enums\AssetStatus;
 use App\Enums\BookingStatus;
 use App\Enums\DepartureStatus;
 use App\Exceptions\AssetUnavailable;
@@ -103,9 +102,7 @@ final class CreateBooking
 
         $candidates = $data->assetId
             ? Asset::query()->whereKey($data->assetId)->get()
-            : Asset::query()
-                ->where('kind', $service->asset_kind)
-                ->where('status', AssetStatus::Active)
+            : $service->eligibleAssets()
                 ->where('capacity', '>=', $data->pax())
                 ->orderBy('capacity') // la más chica que alcance
                 ->get();

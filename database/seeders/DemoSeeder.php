@@ -25,6 +25,7 @@ use App\Models\User;
 use App\Support\LocalTime;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Str;
 
 /**
  * Datos de ejemplo para desarrollo. Nombres, horarios y precios son inventados;
@@ -46,29 +47,39 @@ class DemoSeeder extends Seeder
                 ->syncRoles([$role]);
         }
 
+        // Flota de ejemplo: nombres, matrículas y lecturas inventados.
         $boats = [
-            ['Carey I', '2301-QR', 24, 1812, 2000, 0],
-            ['Carey II', '2302-QR', 24, 1966, 2000, 0],
-            ['Tortuga', '2305-QR', 30, 3020, 3500, 3000],
-            ['El Cielo', '2310-QR', 12, 940, 1000, 0],
-            ['Caguama', '2311-QR', 10, 2140, 1000, 1000],
-            ['Laúd', '2315-QR', 8, 410, 500, 0],
-            ['Parasail 1', '2320-QR', 10, 1205, 1500, 0],
-            ['Parasail 2', '2321-QR', 10, 300, 1500, 0],
+            ['Carey I', '2301-QR', 'Catamarán', 24, 1812, 2000, 0],
+            ['Carey II', '2302-QR', 'Catamarán', 24, 1966, 2000, 0],
+            ['Tortuga', '2305-QR', 'Catamarán', 30, 3020, 3500, 3000],
+            ['La Cosita', '2310-QR', 'Lancha privada', 12, 940, 1000, 0],
+            ['Caguama', '2311-QR', 'Lancha privada', 10, 2140, 1000, 1000],
+            ['Laúd', '2315-QR', 'Lancha privada', 8, 410, 500, 0],
+            ['Parasail 1', '2320-QR', 'Lancha de parasailing', 10, 1205, 1500, 0],
+            ['Parasail 2', '2321-QR', 'Lancha de parasailing', 10, 300, 1500, 0],
+            ['Jet Ski 1', '2330-QR', 'Moto acuática', 2, 120, 100, 100],
+            ['Jet Ski 2', '2331-QR', 'Moto acuática', 2, 85, 100, 0],
+            ['Jet Ski 3', '2332-QR', 'Moto acuática', 2, 64, 100, 0],
         ];
-        foreach ($boats as [$name, $reg, $cap, $hours, $interval, $last]) {
+        foreach ($boats as [$name, $reg, $model, $cap, $hours, $interval, $last]) {
             Asset::query()->firstOrCreate(['kind' => AssetKind::Boat, 'name' => $name], [
-                'registration' => $reg, 'capacity' => $cap, 'engine_hours' => $hours,
+                'registration' => $reg, 'model' => $model, 'capacity' => $cap, 'engine_hours' => $hours,
                 'service_interval' => $interval, 'last_service_reading' => $last,
             ]);
         }
 
+        // Los grupos de ATV son una simplificación: hoy cada salida ocupa una sola unidad,
+        // así que un convoy de cuatrimotos se registra como una unidad con cupo de grupo.
         $vehicles = [
             ['Van 1', 'YXW-21-44', 'Toyota Hiace', 12, 148320],
             ['Van 2', 'YXW-21-45', 'Toyota Hiace', 12, 96510],
             ['Sprinter', 'YXW-30-12', 'Mercedes Sprinter', 19, 61900],
-            ['Jeep 2', 'YXW-18-02', 'Jeep Wrangler', 6, 88045],
-            ['Jeep 3', 'YXW-18-03', 'Jeep Wrangler', 6, 90110],
+            ['Jeep 1', 'YXW-18-01', 'Jeep Wrangler Sahara A/C', 6, 72300],
+            ['Jeep 2', 'YXW-18-02', 'Jeep Wrangler Sahara A/C', 6, 88045],
+            ['Jeep 3', 'YXW-18-03', 'Jeep Wrangler Sahara A/C', 6, 90110],
+            ['Jeep 4', 'YXW-18-04', 'Jeep Wrangler Sahara A/C', 6, 101230],
+            ['ATV Grupo A', null, 'Convoy de 8 cuatrimotos', 16, 15400],
+            ['ATV Grupo B', null, 'Convoy de 8 cuatrimotos', 16, 12800],
         ];
         foreach ($vehicles as [$name, $plate, $model, $cap, $km]) {
             Asset::query()->firstOrCreate(['kind' => AssetKind::Vehicle, 'name' => $name], [
@@ -107,38 +118,82 @@ class DemoSeeder extends Seeder
             ]);
         }
 
-        $snorkel = $this->service('snorkel-3-arrecifes', [
-            'name' => 'Snorkel 3 arrecifes', 'category' => ServiceCategory::Snorkel, 'asset_kind' => AssetKind::Boat,
-            'is_shared' => true, 'duration_minutes' => 150, 'buffer_minutes' => 30, 'default_capacity' => 24,
-            'price_adult_cents' => 138000, 'price_child_cents' => 99000,
-        ], ['Check-in en muelle', 'Zarpe', 'Arrecife Palancar', 'Arrecife Colombia', 'Regreso a muelle', 'Desembarque y cierre']);
+        // Catálogo de tortugascozumel.com: nombre, itinerario, duración y precio en línea (USD).
+        // Precio por persona: el sistema aún no maneja precio por embarcación.
+        $catamaran = $this->service('Catamaran Snorkel to El Cielo', [
+            'category' => ServiceCategory::Snorkel, 'asset_kind' => AssetKind::Boat, 'is_shared' => true,
+            'duration_minutes' => 240, 'buffer_minutes' => 30, 'default_capacity' => 24, 'price_adult_cents' => 7599,
+            'description' => 'El Cielo + Drinks & Snacks + Beach Break (4 Hours)',
+        ], ['Check-in en muelle', 'Zarpe', 'El Cielo', 'Regreso a muelle', 'Beach break y cierre'],
+            ['Carey I', 'Carey II', 'Tortuga']);
 
-        $this->service('embarcacion-privada', [
-            'name' => 'Embarcación privada', 'category' => ServiceCategory::PrivateBoat, 'asset_kind' => AssetKind::Boat,
-            'is_shared' => false, 'duration_minutes' => 240, 'buffer_minutes' => 30,
-            'price_adult_cents' => 174000, 'price_child_cents' => 174000,
-        ], ['Check-in en muelle', 'Zarpe', 'Arrecife', 'El Cielo', 'Regreso a muelle', 'Desembarque y cierre']);
+        $this->service('El Cielo by Private Boat', [
+            'category' => ServiceCategory::PrivateBoat, 'asset_kind' => AssetKind::Boat, 'is_shared' => false,
+            'duration_minutes' => 240, 'buffer_minutes' => 30, 'price_adult_cents' => 44999,
+            'description' => 'Private Boat + Colombia & Palancar Reefs + El Cielo + Refreshments & Snacks + Beach Break (4 Hours)',
+        ], ['Check-in en muelle', 'Zarpe', 'Arrecife Colombia', 'Arrecife Palancar', 'El Cielo', 'Regreso a muelle', 'Beach break y cierre'],
+            ['La Cosita', 'Caguama', 'Laúd']);
 
-        $parasail = $this->service('parasailing', [
-            'name' => 'Parasailing', 'category' => ServiceCategory::Parasailing, 'asset_kind' => AssetKind::Boat,
-            'is_shared' => true, 'duration_minutes' => 50, 'buffer_minutes' => 10, 'default_capacity' => 10,
-            'price_adult_cents' => 157900, 'price_child_cents' => 157900,
-        ], ['Check-in', 'En el aire', 'Regreso', 'Cierre']);
+        $parasail = $this->service('Parasailing at Tortugas Beach Club', [
+            'category' => ServiceCategory::Parasailing, 'asset_kind' => AssetKind::Boat, 'is_shared' => true,
+            'duration_minutes' => 60, 'buffer_minutes' => 10, 'default_capacity' => 10, 'price_adult_cents' => 8099,
+            'description' => 'Parasailing + Beach Break (1 Hour). Approx 12 mins in the air',
+        ], ['Check-in', 'Zarpe', 'En el aire', 'Regreso y beach break'],
+            ['Parasail 1', 'Parasail 2']);
 
-        $jeep = $this->service('jeep-tour', [
-            'name' => 'Jeep tour', 'category' => ServiceCategory::JeepTour, 'asset_kind' => AssetKind::Vehicle,
-            'is_shared' => true, 'duration_minutes' => 300, 'buffer_minutes' => 30, 'default_capacity' => 6,
-            'price_adult_cents' => 149100, 'price_child_cents' => 120000,
-        ], ['Recogida', 'Costa oriente', 'Comida', 'Punta Sur', 'Regreso']);
+        $this->service('Jet Ski Rental & Tortugas Beach Club', [
+            'category' => ServiceCategory::JetSki, 'asset_kind' => AssetKind::Boat, 'is_shared' => false,
+            'duration_minutes' => 30, 'buffer_minutes' => 10, 'price_adult_cents' => 7199,
+            'description' => 'Jet Ski Rental (30 Minutes) + Tortugas Beach Club',
+        ], ['Check-in y chaleco', 'En el agua', 'Regreso y cierre'],
+            ['Jet Ski 1', 'Jet Ski 2', 'Jet Ski 3']);
 
+        $jeepAtv = $this->service('Jeep Tour & ATV Jungle Adventure to Jade Cavern', [
+            'category' => ServiceCategory::JeepTour, 'asset_kind' => AssetKind::Vehicle, 'is_shared' => true,
+            'duration_minutes' => 330, 'buffer_minutes' => 30, 'default_capacity' => 6, 'price_adult_cents' => 26999,
+            'description' => 'Island Jeep Tour + Jungle ATV Tour + Jade Cavern + Mexican Lunch + Beach Break (5.5 Hours)',
+        ], ['Recogida', 'Recorrido en Jeep', 'El Cedral: ATV en la selva', 'Jade Cavern y cata de tequila', 'Comida y snorkel de orilla', 'Cierre'],
+            ['Jeep 2', 'Jeep 3']);
+
+        $this->service('Cozumel by Jeep with Snorkel by Boat (Private)', [
+            'category' => ServiceCategory::JeepTour, 'asset_kind' => AssetKind::Vehicle, 'is_shared' => false,
+            'duration_minutes' => 300, 'buffer_minutes' => 30, 'price_adult_cents' => 9499,
+            'description' => 'Jeep Island Tour + Snorkel by Boat + Mexican Lunch (5 Hours)',
+        ], ['Recogida', 'Recorrido en Jeep', 'Snorkel en lancha', 'Comida mexicana', 'Cierre'],
+            ['Jeep 1', 'Jeep 4']);
+
+        $this->service('The Original Jeep Tour Revamped (Private)', [
+            'category' => ServiceCategory::JeepTour, 'asset_kind' => AssetKind::Vehicle, 'is_shared' => false,
+            'duration_minutes' => 330, 'buffer_minutes' => 30, 'price_adult_cents' => 7649,
+            'description' => 'Island Tour + Theme Park + Guided Shore Snorkel + Lunch (5.5 Hours)',
+        ], ['Recogida', 'Recorrido por la isla', 'Parque temático', 'Snorkel guiado de orilla', 'Comida', 'Cierre'],
+            ['Jeep 1', 'Jeep 4']);
+
+        $atvMud = $this->service('ATV Mud Kicking & Snorkel by Boat', [
+            'category' => ServiceCategory::Atv, 'asset_kind' => AssetKind::Vehicle, 'is_shared' => true,
+            'duration_minutes' => 330, 'buffer_minutes' => 30, 'default_capacity' => 16, 'price_adult_cents' => 12824,
+            'description' => 'ATV Adventure + Jade Cavern + Snorkel by Boat + Lunch & Open Bar (5.5 Hours)',
+        ], ['Check-in', 'Traslado a El Cedral', 'Recorrido en ATV', 'Jade Cavern', 'Snorkel en lancha', 'Comida y open bar', 'Cierre'],
+            ['ATV Grupo A']);
+
+        $atvTrails = $this->service('ATV Jungle Trails to Jade Cavern & Snorkel', [
+            'category' => ServiceCategory::Atv, 'asset_kind' => AssetKind::Vehicle, 'is_shared' => true,
+            'duration_minutes' => 210, 'buffer_minutes' => 30, 'default_capacity' => 16, 'price_adult_cents' => 9499,
+            'description' => 'ATV Jungle Adventure + Jade Cavern + Shore Snorkel (3.5 Hours)',
+        ], ['Check-in', 'Recorrido en ATV', 'Jade Cavern', 'Snorkel de orilla', 'Cierre'],
+            ['ATV Grupo B']);
+
+        // Horarios fijos de ejemplo (hora local). No se traslapan en la misma unidad, contando el margen.
         $schedule = [
-            [$snorkel, 'Carey I', ['08:30', '11:30', '15:00']],
-            [$snorkel, 'Carey II', ['10:00', '13:30']],
-            [$snorkel, 'Tortuga', ['14:30']],
-            [$parasail, 'Parasail 1', ['09:00', '10:00', '11:00', '13:00', '14:00']],
-            [$parasail, 'Parasail 2', ['14:00', '15:00']],
-            [$jeep, 'Jeep 2', ['09:30']],
-            [$jeep, 'Jeep 3', ['09:30']],
+            [$catamaran, 'Carey I', ['08:30', '13:00']],
+            [$catamaran, 'Carey II', ['10:00']],
+            [$catamaran, 'Tortuga', ['14:30']],
+            [$parasail, 'Parasail 1', ['09:00', '10:30', '12:00', '13:30', '15:00']],
+            [$parasail, 'Parasail 2', ['10:00', '14:00']],
+            [$jeepAtv, 'Jeep 2', ['09:00']],
+            [$jeepAtv, 'Jeep 3', ['09:00']],
+            [$atvMud, 'ATV Grupo A', ['08:30']],
+            [$atvTrails, 'ATV Grupo B', ['09:00', '13:00']],
         ];
         foreach ($schedule as [$service, $assetName, $times]) {
             $asset = Asset::query()->where('name', $assetName)->firstOrFail();
@@ -165,8 +220,9 @@ class DemoSeeder extends Seeder
             'Carey I' => ['Rubén Canul', 'Karla Ek'],
             'Carey II' => ['Jorge May'],
             'Tortuga' => ['Luis Pech'],
+            'La Cosita' => ['Luis Pech'],
+            'Caguama' => ['Luis Pech'],
             'Laúd' => ['Luis Pech'],
-            'El Cielo' => ['Luis Pech'],
             'Parasail 1' => ['Ana Chi'],
             'Parasail 2' => ['Ana Chi'],
             'Jeep 2' => ['Pedro Uc', 'Marco Tun'],
@@ -186,14 +242,16 @@ class DemoSeeder extends Seeder
         });
     }
 
-    private function service(string $slug, array $attrs, array $stages): Service
+    /** Crea el servicio (slug a partir del nombre, como en el panel), sus etapas y sus unidades habilitadas. */
+    private function service(string $name, array $attrs, array $stages, array $assetNames): Service
     {
-        $service = Service::query()->firstOrCreate(['slug' => $slug], $attrs + ['currency' => Currency::MXN]);
-        foreach ($stages as $i => $name) {
+        $service = Service::query()->firstOrCreate(['slug' => Str::slug($name)], $attrs + ['name' => $name, 'currency' => Currency::USD]);
+        foreach ($stages as $i => $stage) {
             $service->stages()->firstOrCreate(['position' => $i + 1], [
-                'name' => $name, 'requires_reading' => $i === count($stages) - 1,
+                'name' => $stage, 'requires_reading' => $i === count($stages) - 1,
             ]);
         }
+        $service->assets()->syncWithoutDetaching(Asset::query()->whereIn('name', $assetNames)->pluck('id'));
 
         return $service;
     }
@@ -217,7 +275,7 @@ class DemoSeeder extends Seeder
                     cruiseShip: $i % 3 === 0 ? 'Icon of the Seas' : null,
                 ));
                 if ($i % 4 !== 3) {
-                    $pay->handle($booking, $booking->total_cents, Currency::MXN, PaymentMethod::Card);
+                    $pay->handle($booking, $booking->total_cents, $booking->currency, PaymentMethod::Card);
                 }
             });
 
@@ -226,7 +284,7 @@ class DemoSeeder extends Seeder
             customer: ['name' => 'Familia Harris', 'email' => 'harris@example.com', 'country' => 'US'],
             adults: 6,
             channel: SalesChannel::Website,
-            serviceId: Service::query()->where('slug', 'embarcacion-privada')->value('id'),
+            serviceId: Service::query()->where('slug', 'el-cielo-by-private-boat')->value('id'),
             startsAt: LocalTime::toUtc(now(LocalTime::zone())->addDays(2)->toDateString(), '10:00'),
             cruiseShip: 'Icon of the Seas',
             allAboardAt: LocalTime::toUtc(now(LocalTime::zone())->addDays(2)->toDateString(), '17:30'),

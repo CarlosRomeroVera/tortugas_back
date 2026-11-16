@@ -13,6 +13,7 @@ enum ServiceCategory: string implements HasColor, HasLabel
     case JeepTour = 'jeep_tour';
     case BeachClub = 'beach_club';
     case Atv = 'atv';
+    case JetSki = 'jet_ski';
 
     public function getLabel(): string
     {
@@ -23,6 +24,7 @@ enum ServiceCategory: string implements HasColor, HasLabel
             self::JeepTour => 'Jeep tour',
             self::BeachClub => 'Club de playa',
             self::Atv => 'ATV',
+            self::JetSki => 'Moto acuática',
         };
     }
 
@@ -35,6 +37,7 @@ enum ServiceCategory: string implements HasColor, HasLabel
             self::JeepTour => 'success',
             self::BeachClub => 'gray',
             self::Atv => 'danger',
+            self::JetSki => 'info',
         };
     }
 }

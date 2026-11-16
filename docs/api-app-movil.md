@@ -87,7 +87,7 @@ Todos requieren el token. La columna "Quién" indica los roles que pueden usarlo
 
 ### GET `/availability?service=&date=&pax=`
 
-- `service`: slug o UUID de un servicio activo. Slugs de prueba: `snorkel-3-arrecifes`, `parasailing`, `jeep-tour` (compartidos) y `embarcacion-privada` (privado).
+- `service`: slug o UUID de un servicio activo. Lista completa en `GET /services`. Ejemplos de los datos de prueba: `catamaran-snorkel-to-el-cielo` (compartido) y `el-cielo-by-private-boat` (privado).
 - `date`: fecha local en formato `YYYY-MM-DD`.
 - `pax`: número de personas, de 1 a 100.
 
@@ -96,8 +96,8 @@ Si el servicio no existe responde 404.
 **Servicio compartido:** cada horario es una salida ya programada con lugares que se venden por persona.
 ```json
 {
-  "service": { "id": "…", "slug": "snorkel-3-arrecifes", "name": "Snorkel 3 arrecifes", "shared": true,
-               "duration_minutes": 150, "currency": "MXN", "price_adult_cents": 138000, "price_child_cents": 99000 },
+  "service": { "id": "…", "slug": "catamaran-snorkel-to-el-cielo", "name": "Catamaran Snorkel to El Cielo", "shared": true,
+               "duration_minutes": 240, "currency": "USD", "price_adult_cents": 7599, "price_child_cents": null },
   "date": "2026-11-16",
   "timezone": "America/Cancun",
   "slots": [
@@ -173,7 +173,7 @@ Responde **201** con `data`, la reserva actualizada.
   "currency": "MXN", "total_cents": 375000, "paid_cents": 50000, "balance_cents": 325000,
   "cruise_ship": null, "all_aboard_at": null,
   "customer": { "name": "Ana López", "email": "ana@example.com", "phone": "+529871234567" },
-  "departure": { "id": "…", "code": "…", "service": "Snorkel 3 arrecifes", "asset": "Carey I",
+  "departure": { "id": "…", "code": "…", "service": "Catamaran Snorkel to El Cielo", "asset": "Carey I",
                  "starts_at": "2026-11-16T13:30:00+00:00", "local_time": "2026-11-16 08:30" },
   "payments": [ { "amount_cents": 50000, "currency": "MXN", "method": "cash", "status": "paid", "paid_at": "…" } ]
 }
@@ -250,9 +250,10 @@ Catálogo de servicios activos, con precios y etapas. Úsalo para no fijar slugs
 
 ```json
 { "data": [ {
-  "id": "…", "slug": "snorkel-3-arrecifes", "name": "Snorkel 3 arrecifes", "category": "snorkel",
-  "asset_kind": "boat", "shared": true, "duration_minutes": 150, "capacity": 24, "currency": "MXN",
-  "price_adult_cents": 138000, "price_child_cents": 99000, "description": null,
+  "id": "…", "slug": "catamaran-snorkel-to-el-cielo", "name": "Catamaran Snorkel to El Cielo", "category": "snorkel",
+  "asset_kind": "boat", "shared": true, "duration_minutes": 240, "capacity": 24, "currency": "USD",
+  "price_adult_cents": 7599, "price_child_cents": 7599,
+  "description": "El Cielo + Drinks & Snacks + Beach Break (4 Hours)",
   "stages": [ { "id": "…", "position": 1, "name": "Check-in en muelle", "requires_reading": false } ]
 } ] }
 ```
@@ -264,17 +265,17 @@ Mis salidas de un día (fecha local de Cozumel; sin `date`, hoy). Ordenadas por 
 ```json
 { "data": [ {
   "id": "…", "code": "SAL-20261117-A3F9", "status": "scheduled",
-  "service": { "id": "…", "slug": "snorkel-3-arrecifes", "name": "Snorkel 3 arrecifes", "shared": true },
+  "service": { "id": "…", "slug": "catamaran-snorkel-to-el-cielo", "name": "Catamaran Snorkel to El Cielo", "shared": true },
   "asset": { "id": "…", "name": "Carey I", "kind": "boat", "registration": "2301-QR", "capacity": 24,
              "reading": { "unit": "hours", "current": 1812 } },
-  "starts_at": "2026-11-17T13:30:00+00:00", "ends_at": "2026-11-17T16:00:00+00:00",
-  "local_date": "2026-11-17", "local_time": "08:30", "local_end_time": "11:00",
+  "starts_at": "2026-11-17T13:30:00+00:00", "ends_at": "2026-11-17T17:30:00+00:00",
+  "local_date": "2026-11-17", "local_time": "08:30", "local_end_time": "12:30",
   "departed_at": null, "returned_at": null,
   "my_role": "captain",
   "crew": [ { "name": "Rubén Canul", "role": "captain", "phone": null }, { "name": "Karla Ek", "role": "guide", "phone": null } ],
   "capacity": 24, "bookings_count": 2,
   "pax": { "booked": 5, "checked_in": 0, "no_show": 0 },
-  "current_stage": null, "stages_total": 6, "notes": null
+  "current_stage": null, "stages_total": 5, "notes": null
 } ] }
 ```
 
@@ -292,7 +293,7 @@ Lo mismo que un elemento de la lista, más `stages` y `manifest`. Si la salida n
   "stages": [
     { "id": "…", "position": 1, "name": "Check-in en muelle", "requires_reading": false,
       "reached_at": "2026-11-17T13:18:00+00:00", "done": true },
-    { "id": "…", "position": 6, "name": "Desembarque y cierre", "requires_reading": true,
+    { "id": "…", "position": 5, "name": "Beach break y cierre", "requires_reading": true,
       "reached_at": null, "done": false }
   ],
   "manifest": [ {
@@ -301,7 +302,7 @@ Lo mismo que un elemento de la lista, más `stages` y `manifest`. Si la salida n
     "cruise_ship": "Icon of the Seas", "all_aboard_at": "2026-11-17T22:30:00+00:00", "all_aboard_local_time": "17:30",
     "pickup": { "id": "…", "name": "Hotel Presidente", "type": "hotel", "address": null,
                 "latitude": 20.4675, "longitude": -86.98, "notes": null },
-    "checked_in_at": null, "currency": "MXN", "balance_cents": 0, "notes": null
+    "checked_in_at": null, "currency": "USD", "balance_cents": 0, "notes": null
   } ]
 } }
 ```
@@ -309,6 +310,7 @@ Lo mismo que un elemento de la lista, más `stages` y `manifest`. Si la salida n
 - **`manifest`:** reservas activas y no presentadas (las canceladas no aparecen), agrupadas por punto de recogida y luego por nombre. `pickup: null` = llega por su cuenta.
 - **`balance_cents` > 0:** hay saldo por cobrar en muelle. La app **no** registra pagos; eso lo hace oficina.
 - **`all_aboard_local_time`:** resáltalo. Un crucerista que pierde su barco es el peor caso.
+- **Moneda:** los tours de prueba están en USD, como en el sitio web. Usa siempre el `currency` que venga en cada respuesta.
 - **`reached_at`** de una etapa saltada queda en `null` aunque `done` sea `true`.
 
 ### POST `/sync/events`
