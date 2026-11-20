@@ -48,9 +48,14 @@ php artisan departures:generate --days=14   # crea salidas compartidas desde los
 | POST | `/api/v1/bookings/{code}/payments` | Registra pago (MXN o USD) |
 | POST | `/api/v1/bookings/{code}/cancel` | Cancela y libera lugares |
 
+La API completa para la app móvil (incluye capitán y chofer) está en [docs/api-app-movil.md](docs/api-app-movil.md).
+
 ## Fases
 
-1. **Catálogos, reservas y disponibilidad** ← este código
-2. Salidas en vivo: etapas, app del capitán (sincronización offline), Reverb
+1. **Catálogos, reservas y disponibilidad** ✅
+2. **Salidas en vivo**: etapas, app del capitán (sincronización offline) ✅, Reverb ⏳
 3. Recogidas, corridas de vehículos, GPS
 4. Mantenimiento preventivo automático, cierres de puerto, reportes
+
+Estado detallado, perfiles y permisos, y bitácora diaria: [docs/avance.md](docs/avance.md).
+Cada día con avance se agrega una entrada en su bitácora.

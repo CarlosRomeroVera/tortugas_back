@@ -35,7 +35,7 @@ class AdminPanelProvider extends PanelProvider
             ->brandLogoHeight('2.75rem')
             ->favicon(fn () => asset('img/favicon.png'))
             ->colors([
-                'primary' => Color::hex('#1e9cc4'), // turquesa Tortugas Cozumel
+                'primary' => self::primaryPalette(),
                 'danger' => Color::Rose,
                 'warning' => Color::Amber,
                 'success' => Color::Emerald,
@@ -72,5 +72,19 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ]);
+    }
+
+    /**
+     * Turquesa Tortugas Cozumel (#1e9cc4) recorrido un tono hacia lo oscuro.
+     * Filament solo pone texto blanco en botones si el 600 contrasta ≥ 4.5:1 con blanco;
+     * con la paleta tal cual daba 3.5:1 y usaba fondo claro con texto oscuro.
+     *
+     * @return array<int, string>
+     */
+    private static function primaryPalette(): array
+    {
+        $p = Color::hex('#1e9cc4');
+
+        return array_replace($p, [500 => $p[600], 600 => $p[700], 700 => $p[800]]);
     }
 }
