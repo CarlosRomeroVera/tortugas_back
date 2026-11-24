@@ -3,7 +3,7 @@
 Documento vivo: estado por fase, perfiles y permisos, y una bitácora que se llena cada día que hay avance.
 Plan de referencia: propuesta "Tortugas Ops en Laravel + Filament" (sección *05 · Plan*).
 
-**Última actualización:** 2026-11-19 · rama `fase-1` · 87 pruebas pasando
+**Última actualización:** 2026-11-23 · rama `fase-1` · 87 pruebas pasando
 
 ---
 
@@ -22,7 +22,7 @@ Leyenda: ✅ hecho · 🟡 parcial · ⏳ pendiente
 | Generación de salidas compartidas desde horarios fijos | ✅ | `php artisan departures:generate` |
 | Roles y auditoría | 🟡 | Roles sí; auditoría con activitylog en reservas, pagos, ocupaciones, mantenimiento y fallas. Falta permisos por pantalla (ver sección 2) |
 
-### Fase 2 · Operación en vivo — 🟡 casi lista
+### Fase 2 · Operación en vivo — 🟡 casi lista (falta Reverb)
 
 | Entregable | Estado | Dónde / nota |
 |---|---|---|
@@ -31,7 +31,7 @@ Leyenda: ✅ hecho · 🟡 parcial · ⏳ pendiente
 | Reportes de falla desde la app | ✅ | `FaultReport`, relation manager en Recursos |
 | Tablero en vivo | 🟡 | Widgets `FleetTimeline`, `OpsStats`, `OpsAlerts` con consulta cada 30 s |
 | Tiempo real con Reverb | ⏳ | No instalado todavía |
-| App del capitán en Ionic | ⏳ | Va en el repo del front; la API ya está lista |
+| App móvil en Ionic | 🟡 | Construida en `../tortugas_app` (Ionic Vue): oficina, capitán y chofer contra la API real, con cola sin señal. Falta recorrerla completa con la guía de pruebas |
 
 ### Fase 3 · Transporte — ⏳ sin empezar
 
@@ -106,6 +106,13 @@ Contraseña de los usuarios de prueba: `password`.
 ## 4. Bitácora
 
 Una entrada por día con avance, la más reciente arriba. Formato: qué se hizo, decisiones tomadas y qué sigue.
+
+### 2026-11-23
+- Guía de pruebas paso a paso para preparar la demo al cliente: [Guía de pruebas — Web y App Tortugas](https://claude.ai/artifact/LJZYARKoziKCbg2MrqqFkH). Cubre preparación del entorno, panel web por módulo (W1–W7), app móvil (A0–A8), 16 variantes y casos límite, guion de 30 min y checklist del día.
+- Se corrigió el estado de la app: ya existe en `../tortugas_app` con pantallas de oficina (disponibilidad, reservas, pagos, cancelación), capitán y chofer (mis salidas, pase de lista, etapas, lectura, fallas) y modo sin señal.
+- Recordatorio para la demo: el seeder crea salidas desde el día siguiente; correr `migrate:fresh --seed` la víspera o esa mañana.
+- 87 pruebas del backend pasando.
+- **Sigue:** ensayar la guía completa en web y app, y después Reverb para el tablero en vivo.
 
 ### 2026-11-19
 - Se revisó el avance contra el plan y se creó este documento.
